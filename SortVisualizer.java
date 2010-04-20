@@ -1,11 +1,16 @@
 /*
  * TODO:
+ *  - Add quickSort
+ *      - Finish partition method
+ *      - Test median method
+ *      - Test swap method
+ *      - Test do/while syntax
+ *      - Test entire quickSort method
  *  - Add mergeSort
  *  - Add visualization
  *  - Add comparators to sorting algorithms (instead of Comparable type)
  *
  * DONE:
- *  - Generalize sort algorithms to work with an array of any type.
  */
 
 import java.util.*;
@@ -44,23 +49,54 @@ public class SortVisualizer {
         }
     }
 
-    //[>* Sort a list of integers using QuickSort. <]
-    //public static void quickSort(Comparable[] data) {
-        //quickSort(data, 0, data.length);
-    //}
+    /** Sort a list of integers using QuickSort. */
+    public static void quickSort(Comparable[] data) {
+        quickSort(data, 0, data.length);
+    }
 
-    //[>* Sort a list of integers using QuickSort. <]
-    //public static void quickSort(Comparable[] data, int low, int high) {
-        //if (high - low < 2) // only one item to sort.
-            //return;
-        ////if (high - low < 4) // only two or three items to sort.
-            ////sort3(data, low, high, comp);
-        //else {
-            //int mid = partition(data, low, high);
-            //quickSort(data, low, mid);
-            //quickSort(data, mid, high);
-        //}
-    //}
+    /** Sort a list of integers using QuickSort. */
+    public static void quickSort(Comparable[] data, int low, int high) {
+        if (high - low < 2) // only one item to sort.
+            return;
+        //if (high - low < 4) // only two or three items to sort.
+            //sort3(data, low, high, comp);
+        else {
+            int mid = partition(data, low, high);
+            quickSort(data, low, mid);
+            quickSort(data, mid, high);
+        }
+    }
+
+    private static int quickSortPartition(Comparable[] data, 
+                                          int low, int high) {
+        Comparable pivot = median(data[low], data[high - 1],
+                                  data[(low + high) / 2]);
+        int left = low - 1;
+        int right = high;
+        while (left <= right){
+            // TODO: is this correct do/while syntax?
+            do left++;
+            while (left < high && data[left].compareTo(pivot) < 0);
+            do right--;
+            while (right >= low && data[right].compareTo(pivot) > 0);
+            if (left < right) swap(data, left, right);
+        }
+        return left;
+    }
+
+    /** Swap two indexes (i, j) in an array. */
+    public static <E> swap(E[] data, int i, int j){
+        E a = data[i];
+        data[i] = data[j];
+        data[j] = a;
+    }
+
+    /** Uses insertionSort to find median value.
+        Works well with small amount of values. */
+    public static Comparable median(Comparable ... values) {
+        insertionSort(values);
+        return values[(values.length - 1)/2]
+    }
 
     public static <E> void printArray(E[] data) {
         List<E> list = new ArrayList<E>();
