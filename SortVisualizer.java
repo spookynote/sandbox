@@ -1,16 +1,16 @@
 /*
  * TODO:
  *  - Add quickSort
- *      - Finish partition method
  *      - Test median method
  *      - Test swap method
- *      - Test do/while syntax
+ *      - Add sort3 method
  *      - Test entire quickSort method
  *  - Add mergeSort
  *  - Add visualization
  *  - Add comparators to sorting algorithms (instead of Comparable type)
  *
  * DONE:
+ *      - Finish partition method
  */
 
 import java.util.*;
@@ -58,15 +58,21 @@ public class SortVisualizer {
     public static void quickSort(Comparable[] data, int low, int high) {
         if (high - low < 2) // only one item to sort.
             return;
+        // TODO: add sort3 method, (otherwise recursion doesn't stop)
         //if (high - low < 4) // only two or three items to sort.
             //sort3(data, low, high, comp);
         else {
-            int mid = partition(data, low, high);
+            int mid = quickSortPartition(data, low, high);
+            System.out.println("mid (pivot index) = " + mid);
+            System.out.println("high-low = " + (high - low));
+            System.out.println();
             quickSort(data, low, mid);
             quickSort(data, mid, high);
         }
     }
 
+    /** Find a pivot value, and sort the array into 2 halves
+        based on the pivot value. */
     private static int quickSortPartition(Comparable[] data, 
                                           int low, int high) {
         Comparable pivot = median(data[low], data[high - 1],
@@ -74,18 +80,23 @@ public class SortVisualizer {
         int left = low - 1;
         int right = high;
         while (left <= right){
-            // TODO: is this correct do/while syntax?
-            do left++;
-            while (left < high && data[left].compareTo(pivot) < 0);
-            do right--;
-            while (right >= low && data[right].compareTo(pivot) > 0);
+            do { 
+                left++;
+            } while (left < high && data[left].compareTo(pivot) < 0);
+            do { 
+                right--;
+            } while (right >= low && data[right].compareTo(pivot) > 0);
             if (left < right) swap(data, left, right);
         }
         return left;
     }
 
+    //[>* Sort 3 values in an array. <]
+    //public static void sort3(Comparable[] data, int low, int high) {
+    //}
+
     /** Swap two indexes (i, j) in an array. */
-    public static <E> swap(E[] data, int i, int j){
+    public static <E> void swap(E[] data, int i, int j){
         E a = data[i];
         data[i] = data[j];
         data[j] = a;
@@ -95,7 +106,7 @@ public class SortVisualizer {
         Works well with small amount of values. */
     public static Comparable median(Comparable ... values) {
         insertionSort(values);
-        return values[(values.length - 1)/2]
+        return values[(values.length - 1)/2];
     }
 
     public static <E> void printArray(E[] data) {
@@ -108,10 +119,15 @@ public class SortVisualizer {
     public static void main(String args[]) {
         SortVisualizer sv = new SortVisualizer();
         Integer[] data = sv.randomIntArray();
+        Integer[] a = data.clone();
+        Integer[] b = data.clone();
         System.out.println();
-        sv.printArray(data);
-        sv.insertionSort(data);
+        System.out.println("insertionSort:");
+        sv.printArray(a);
+        sv.insertionSort(a);
         System.out.println();
-        sv.printArray(data);
+        System.out.println("quickSort:");
+        sv.printArray(b);
+        sv.quickSort(b);
     }
 }
