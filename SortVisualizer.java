@@ -1,25 +1,68 @@
 /*
  * TODO:
- *  - Add visualization
  *  - Add mergeSort
  *  - Add comparators to sorting algorithms (instead of Comparable type)
  *
  * DONE:
- *  - Add quickSort
- *      - Finish partition method
- *      - Add sort3 method
- *  - Add step method
+ *  - Add visualization
+ *
+ * MAYBE:
+ *  - Simplfy algorithm
+ *      - Modify algorithm to work without sort3 function
  */
 
 import java.util.*;
 import comp100.*;
+import javax.swing.*;
+import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.io.*;
 
 /** Application for visualizing the different sort methods. */
 public class SortVisualizer {
 
+    // Fields
+    private JFrame frame;
+    private DrawingCanvas canvas;
+    private JTextArea messageArea; 
+    private Integer[] data1;
+    private int unitSize = 8; // screen size of array elements
+    private int ARRAY_LENGTH = 20;
+
+    /** Constructor. Create the SortVisualizer GUI. */
+    public SortVisualizer() {
+        frame = new JFrame("Sort Visualizer");
+        frame.setSize(unitSize * ARRAY_LENGTH + 10, 
+                      unitSize * ARRAY_LENGTH + 50);
+
+        //The graphics area
+        canvas = new DrawingCanvas();
+        frame.getContentPane().add(canvas, BorderLayout.CENTER);
+
+        frame.setVisible(true);
+
+        data1 = randomIntArray();
+        renderArray(data1);
+        quickSort(data1);
+        renderArray(data1); // bug makes quicksort not render last step
+    }
+
+    /** Return an array of random integers. */
+    public <E> void renderArray(E[] data) {
+        canvas.clear();
+        for (int i=0; i<data.length; i++) {
+            if (data instanceof Integer[]){
+                Integer element = (Integer) data[i];
+                canvas.setColor(Color.blue);
+                canvas.fillRect(i*unitSize, element*unitSize, unitSize, unitSize, false);
+            }
+        }
+        canvas.display();
+    }
+
     /** Return an array of random integers. */
     public Integer[] randomIntArray() {
-        int ARRAY_LENGTH = 7;
         List<Integer> list = new ArrayList<Integer>();
         Integer[] data = new Integer[ARRAY_LENGTH];
         Random rand = new Random();
@@ -35,31 +78,33 @@ public class SortVisualizer {
         return data;
     }
 
-    /** Print the given array and wait for user input to continue.*/
-    private static void step(Comparable[] data) {
-        printArray(data);
-        // Wait for user input to run next step
-        Scanner in = new Scanner(System.in);
-        in.nextLine();
+    /** Render the given array and sleep for a short period of time.*/
+    private void step(Comparable[] data) {
+        renderArray(data);
+        try {
+            Thread.sleep(900);
+        } catch(InterruptedException e) {}
+        //// Wait for user input to run next step
+        //Scanner in = new Scanner(System.in);
+        //in.nextLine();
     }
 
     /** Sort a list of integers using QuickSort. */
-    public static void quickSort(Comparable[] data) {
+    public void quickSort(Comparable[] data) {
         quickSort(data, 0, data.length);
     }
 
     /** Sort a list of integers using QuickSort. */
-    public static void quickSort(Comparable[] data, int low, int high) {
+    public void quickSort(Comparable[] data, int low, int high) {
         if (high - low < 2) // only one item to sort.
             return;
         if (high - low < 4) // only two or three items to sort.
             sort3(data, low);
         else {
             int mid = quickSortPartition(data, low, high);
-            System.out.println("high-low = " + (high - low));
-            System.out.println("mid (pivot): data[" + mid
-                              + "] = " + data[mid]);
-            step(data);
+            //System.out.println("high-low = " + (high - low));
+            //System.out.println("mid (pivot): data[" + mid
+                              //+ "] = " + data[mid]);
             quickSort(data, low, mid);
             quickSort(data, mid, high);
         }
@@ -67,7 +112,7 @@ public class SortVisualizer {
 
     /** Find a pivot value, and sort the array into 2 halves
         based on the pivot value. */
-    private static int quickSortPartition(Comparable[] data, 
+    private int quickSortPartition(Comparable[] data, 
                                           int low, int high) {
         Comparable pivot = median(data[low], data[high - 1],
                                   data[(low + high) / 2]);
@@ -86,7 +131,7 @@ public class SortVisualizer {
     }
 
     /** Sort 3 (or less) values in an array. */
-    public static void sort3(Comparable[] data, int low) {
+    public void sort3(Comparable[] data, int low) {
         int mid = low + 1;
         int high = low + 2;
         if (mid >= data.length)
@@ -131,30 +176,31 @@ public class SortVisualizer {
             data[mid] = b;
             data[high] = c;
         }
-        
+        step(data); // sleep for a bit, then show new array
     }
 
     /** Swap two indexes (i, j) in an array. */
-    public static <E> void swap(E[] data, int i, int j){
-        E a = data[i];
+    public void swap(Comparable[] data, int i, int j){
+        Comparable a = data[i];
         data[i] = data[j];
         data[j] = a;
+        step(data); // sleep for a bit, then show new array
     }
 
     /** Uses insertionSort to find median value.
         Works well with small amount of values. */
-    public static Comparable median(Comparable ... values) {
+    public Comparable median(Comparable ... values) {
         insertionSort(values);
         return values[(values.length - 1)/2];
     }
 
     /** Sort a list of integers using Insertion Sort. */
-    public static void insertionSort(Comparable[] data){
+    public void insertionSort(Comparable[] data){
         insertionSort(data, 0, data.length-1);
     }
 
     /** Sort a list of integers using Insertion Sort. */
-    public static void insertionSort(Comparable[] data, int low, int high){
+    public void insertionSort(Comparable[] data, int low, int high){
         for (int i=low+1; i<high+1; i++) {
             Comparable item = data[i];
             int place = i;
@@ -174,6 +220,8 @@ public class SortVisualizer {
     }
 
     public static void test1() {
+        // NOTE: This function no longer works because the 
+        // SortVisualizer constructor has been modified.
         SortVisualizer sv = new SortVisualizer();
         Integer[] data = sv.randomIntArray();
         Integer[] a = data.clone();
@@ -191,13 +239,15 @@ public class SortVisualizer {
     }
 
     public static void test2() {
+        SortVisualizer sv = new SortVisualizer();
         Integer[] a = {2,5,4};
         printArray(a);
-        insertionSort(a, 0, 2);
+        sv.insertionSort(a, 0, 2);
         printArray(a);
     }
 
     public static void main(String args[]) {
-        test1();
+        new SortVisualizer();
+        //test1();
     }
 }
